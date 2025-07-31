@@ -46,13 +46,21 @@ async def init_db():
             )
         ''')
         await db.commit()
+    yield  # Hand over control to the application
 
-# Inicializar banco de dados ao iniciar
-@app.on_event("startup")
-async def on_startup():
-    await init_db()
+app = FastAPI(
+    title="Mergington High School API",
+    description="API for viewing and signing up for extracurricular activities",
+    lifespan=lifespan
+)
 
+# Mount the static files directory
+current_dir = Path(__file__).parent
+app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
+          "static")), name="static")
 
+# SQLite database path
+DB_PATH = os.path.join(Path(__file__).parent, "activities.db")
 @app.get("/")
 def root():
     return RedirectResponse(url="/static/index.html")
