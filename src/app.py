@@ -91,10 +91,8 @@ async def get_activities():
 @app.post("/activities/{activity_name}/signup")
 async def signup_for_activity(activity_name: str, email: str):
     async with aiosqlite.connect(DB_PATH) as db:
-        # Verifica se a atividade existe
-        async with db.execute("SELECT 1 FROM activities WHERE name = ?", (activity_name,)) as cursor:
-            exists = await cursor.fetchone()
-        if not exists:
+        # Check if the activity exists
+        if not await check_activity_exists(db, activity_name):
             raise HTTPException(status_code=404, detail="Activity not found")
 
         # Verifica se já está inscrito
